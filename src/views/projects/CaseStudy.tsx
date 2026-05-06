@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import phase1Img from "@/assets/media/phase1.png"
 import phase2Img from "@/assets/media/phase2.png"
 import phase3Img from "@/assets/media/phase3.png"
+import heroImg from "@/assets/media/hero.png"
 
 // ─── Motion helpers ───────────────────────────────────────────────────────────
 
@@ -445,34 +446,55 @@ function CaseStudyNav() {
 
 function Hero() {
   return (
-    <section className="min-h-[100svh] flex flex-col pt-20 pb-12">
+    <section className="h-dvh flex flex-col py-16" style={{ overflow: "visible" }}>
 
-      {/* Center — title + subtitle, grows to fill available space */}
-      <div className="flex-1 flex items-center">
-      <div className="space-y-6">
-        <motion.h1
-          style={{ fontSize: "clamp(52px, 7vw, 108px)", lineHeight: 1.02 }}
-          className="font-semibold tracking-tight"
-          initial={{ opacity: 0, y: 32 }}
+      {/* Center group */}
+      <div className="flex-1 flex flex-col items-center justify-center gap-10" style={{ overflow: "visible" }}>
+        <div className="space-y-4 text-center">
+          <motion.h1
+            style={{ fontSize: "clamp(52px, 7vw, 108px)", lineHeight: 1.02 }}
+            className="font-semibold tracking-tight"
+            initial={{ opacity: 0, y: 32 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+          >
+            AI Agent Builder
+          </motion.h1>
+          <motion.p
+            className="text-lg sm:text-xl text-muted-foreground max-w-2xl leading-relaxed"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.25, ease: "easeOut" }}
+          >
+            Designing the tooling layer for defining, evaluating, and reliably operating AI agents inside real business workflows.
+          </motion.p>
+        </div>
+
+        <motion.div
+          className="w-full"
+          style={{ overflow: "visible" }}
+          initial={{ opacity: 0, y: 48 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+          transition={{ delay: 0.4, duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          AI Agent Builder
-        </motion.h1>
-        <motion.p
-          className="text-lg sm:text-xl text-muted-foreground max-w-2xl leading-relaxed"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.25, ease: "easeOut" }}
-        >
-          Designing the tooling layer for defining, evaluating, and reliably operating AI agents inside real business workflows.
-        </motion.p>
-      </div>
+          <div style={{ perspective: "1200px", overflow: "visible" }}>
+            <div style={{ transform: "rotateX(18deg)", overflow: "visible" }}>
+              <div style={{ transform: "skewX(0.32rad)", overflow: "visible" }}>
+                <img
+                  src={heroImg}
+                  alt="Agent Builder interface"
+                  className="w-full h-auto rounded-t-xl border border-border border-b-0"
+                  style={{ maskImage: "linear-gradient(to bottom, black 35%, transparent 100%)" }}
+                />
+              </div>
+            </div>
+          </div>
+        </motion.div>
       </div>
 
       {/* Bottom — meta + scroll hint */}
       <motion.div
-        className="space-y-10"
+        className="space-y-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5, duration: 0.6 }}

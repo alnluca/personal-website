@@ -125,6 +125,8 @@
     }
   body {
     @apply bg-background text-foreground;
+    overflow-x: clip;
+    overflow-clip-margin: 300px;
     }
   html {
     @apply font-sans;
