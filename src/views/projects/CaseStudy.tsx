@@ -4,6 +4,9 @@ import PageTransition from "@/components/PageTransition"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
+import phase1Img from "@/assets/media/phase1.png"
+import phase2Img from "@/assets/media/phase2.png"
+import phase3Img from "@/assets/media/phase3.png"
 
 // ─── Motion helpers ───────────────────────────────────────────────────────────
 
@@ -51,6 +54,152 @@ function SlideIn({
       className={className}
     >
       {children}
+    </motion.div>
+  )
+}
+
+// ─── Carousel lightbox ────────────────────────────────────────────────────────
+
+type Slide = { src: string; alt: string } | { placeholder: string }
+
+function CarouselLightbox({
+  slides,
+  title,
+  onClose,
+}: {
+  slides: Slide[]
+  title: string
+  onClose: () => void
+}) {
+  const [current, setCurrent] = useState(0)
+
+  const prev = () => setCurrent((i) => (i - 1 + slides.length) % slides.length)
+  const next = () => setCurrent((i) => (i + 1) % slides.length)
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose()
+      if (e.key === "ArrowLeft") setCurrent((i) => (i - 1 + slides.length) % slides.length)
+      if (e.key === "ArrowRight") setCurrent((i) => (i + 1) % slides.length)
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [onClose, slides.length])
+
+  const slide = slides[current]
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-background/92 backdrop-blur-md" />
+
+      <motion.div
+        className="relative z-10 flex flex-col gap-4 w-full"
+        style={{ maxWidth: "min(1520px, 96vw)" }}
+        onClick={(e) => e.stopPropagation()}
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.98 }}
+        transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-1">
+          <span className="text-sm font-medium">{title}</span>
+          <span className="text-xs text-muted-foreground tabular-nums">{current + 1} / {slides.length}</span>
+        </div>
+
+        {/* Slide area — fixed height so layout never shifts between slides */}
+        <div className="relative rounded-xl border border-border bg-muted/20 overflow-hidden" style={{ height: "72vh" }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current}
+              className="absolute inset-0 flex items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              {"src" in slide ? (
+                <img
+                  src={slide.src}
+                  alt={slide.alt}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                  <svg width="24" height="24" viewBox="0 0 16 16" fill="none" className="opacity-30">
+                    <rect x="1" y="3" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+                    <path d="M5 9l2-2 2 2 2-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="4.5" cy="6.5" r="0.75" fill="currentColor" />
+                  </svg>
+                  <span className="text-xs text-center px-6 max-w-xs leading-snug">{slide.placeholder}</span>
+                </div>
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Prev / Next arrows */}
+          {slides.length > 1 && (
+            <>
+              <button
+                onClick={prev}
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border border-border bg-background/80 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                aria-label="Previous"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M9 2L4 7l5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+              <button
+                onClick={next}
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full border border-border bg-background/80 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                aria-label="Next"
+              >
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M5 2l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </>
+          )}
+        </div>
+
+        {/* Dot indicators */}
+        {slides.length > 1 && (
+          <div className="flex justify-center gap-1.5">
+            {slides.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className="cursor-pointer"
+                aria-label={`Go to slide ${i + 1}`}
+              >
+                <motion.span
+                  animate={{ width: i === current ? 20 : 6, opacity: i === current ? 1 : 0.3 }}
+                  transition={{ duration: 0.2 }}
+                  className="block h-1 rounded-full bg-foreground"
+                />
+              </button>
+            ))}
+          </div>
+        )}
+      </motion.div>
+
+      {/* Close button */}
+      <button
+        onClick={onClose}
+        className="absolute top-5 right-5 z-20 w-9 h-9 rounded-full border border-border bg-background/80 backdrop-blur-sm flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+        aria-label="Close preview"
+      >
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      </button>
     </motion.div>
   )
 }
@@ -296,67 +445,186 @@ function CaseStudyNav() {
 
 function Hero() {
   return (
-    <section className="pt-24 pb-20 space-y-8">
-      <motion.div
-        initial={{ opacity: 0, y: 32 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.25, 0.1, 0.25, 1] }}
-        className="space-y-6"
-      >
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline">UiPath</Badge>
-          <Badge variant="outline">Agent Builder</Badge>
-          <Badge variant="outline">Developer Tools</Badge>
-        </div>
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-semibold tracking-tight leading-[1.05]">
-          AI Agent Builder
-        </h1>
-        <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">
-          Designing the tooling layer for defining, evaluating, and reliably operating AI agents inside real business workflows.
-        </p>
-      </motion.div>
+    <section className="min-h-[100svh] flex flex-col pt-20 pb-12">
 
+      {/* Center — title + subtitle, grows to fill available space */}
+      <div className="flex-1 flex items-center">
+      <div className="space-y-6">
+        <motion.h1
+          style={{ fontSize: "clamp(52px, 7vw, 108px)", lineHeight: 1.02 }}
+          className="font-semibold tracking-tight"
+          initial={{ opacity: 0, y: 32 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+        >
+          AI Agent Builder
+        </motion.h1>
+        <motion.p
+          className="text-lg sm:text-xl text-muted-foreground max-w-2xl leading-relaxed"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.25, ease: "easeOut" }}
+        >
+          Designing the tooling layer for defining, evaluating, and reliably operating AI agents inside real business workflows.
+        </motion.p>
+      </div>
+      </div>
+
+      {/* Bottom — meta + scroll hint */}
       <motion.div
+        className="space-y-10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
-        className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-4"
+        transition={{ delay: 0.5, duration: 0.6 }}
       >
-        {[
-          { label: "Role", value: "Product Designer" },
-          { label: "Company", value: "UiPath" },
-          { label: "Focus", value: "Agent Builder · Dev Tools" },
-          { label: "Scope", value: "0→1 · Platform" },
-        ].map(({ label, value }) => (
-          <div key={label} className="space-y-1">
-            <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
-            <p className="text-sm font-medium">{value}</p>
-          </div>
-        ))}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+          {[
+            { label: "Role",    value: "Product Designer" },
+            { label: "Company", value: "UiPath" },
+            { label: "Focus",   value: "Agent Builder · Dev Tools" },
+            { label: "Scope",   value: "0→1 · Platform" },
+          ].map(({ label, value }) => (
+            <div key={label} className="space-y-1">
+              <p className="text-xs text-muted-foreground uppercase tracking-wider">{label}</p>
+              <p className="text-sm font-medium">{value}</p>
+            </div>
+          ))}
+        </div>
+
+        <motion.div
+          className="flex justify-center"
+          animate={{ y: [0, 6, 0] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="text-muted-foreground/50">
+            <path d="M10 4v12M4 10l6 6 6-6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </motion.div>
       </motion.div>
+
     </section>
   )
 }
 
 function ContextSection() {
   return (
-    <section className="py-20 space-y-16">
-      <SplitSection
-        media="Platform / ecosystem diagram"
-        content={
-          <div className="space-y-6">
-            <SectionLabel>Context</SectionLabel>
-            <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">
-              UiPath shifted from RPA to AI-native automation
-            </h2>
-            <div className="space-y-3 text-muted-foreground">
-              <p>Agents became the core building block for business process automation — but the platform lacked the tooling to support them.</p>
-              <p>The work required defining agent behavior, evaluating performance, and ensuring reliability in production, all integrated across an existing enterprise ecosystem.</p>
-            </div>
-          </div>
-        }
-      />
+    <section className="py-20">
+      <FadeIn className="max-w-2xl space-y-6">
+        <SectionLabel>Context</SectionLabel>
+        <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">
+          UiPath shifted from RPA to AI-native automation
+        </h2>
+        <div className="space-y-3 text-muted-foreground">
+          <p>Agents became the core building block for business process automation — but the platform lacked the tooling to support them.</p>
+          <p>The work required defining agent behavior, evaluating performance, and ensuring reliability in production, all integrated across an existing enterprise ecosystem.</p>
+        </div>
+      </FadeIn>
     </section>
+  )
+}
+
+const MILESTONES = [
+  { date: "Dec '24", quarter: "Q4 2024", label: "Private\nPreview" },
+  { date: "Feb '25", quarter: "Q1 2025", label: "Controlled\nGA" },
+  { date: "May '25", quarter: "Q2 2025", label: "General\nAvailability" },
+  { date: "Nov '25", quarter: "Q4 2025", label: "Conversational\nAgents GA" },
+  { date: "May '26", quarter: "Q2 2026", label: "Agents in Flow\nPublic Preview" },
+]
+const GHOST_COUNT = 3
+
+function ReleaseTimeline() {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-60px" })
+  const totalCols = MILESTONES.length + GHOST_COUNT
+
+  return (
+    <div ref={ref} className="relative select-none">
+
+      {/* Label row */}
+      <div className="flex mb-3">
+        {MILESTONES.map((m, i) => (
+          <motion.div
+            key={m.date}
+            className="text-center px-0.5"
+            style={{ width: `${100 / totalCols}%` }}
+            initial={{ opacity: 0, y: -6 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.05 + i * 0.07, duration: 0.4, ease: "easeOut" }}
+          >
+            {m.label.split("\n").map((line, j) => (
+              <p key={j} className={`text-[11px] font-medium leading-snug ${j > 0 ? "text-muted-foreground" : ""}`}>
+                {line}
+              </p>
+            ))}
+          </motion.div>
+        ))}
+        {Array.from({ length: GHOST_COUNT }).map((_, i) => (
+          <div key={i} style={{ width: `${100 / totalCols}%` }} />
+        ))}
+      </div>
+
+      {/* Dot + line row */}
+      <div className="relative flex items-center py-2">
+        {/* Line */}
+        <div className="absolute inset-y-1/2 left-0 right-0 h-px bg-border -translate-y-px" />
+
+        {/* Real dots */}
+        {MILESTONES.map((m, i) => (
+          <motion.div
+            key={m.date}
+            className="flex justify-center relative z-10"
+            style={{ width: `${100 / totalCols}%` }}
+            initial={{ opacity: 0, scale: 0 }}
+            animate={isInView ? { opacity: 1, scale: 1 } : {}}
+            transition={{ delay: 0.15 + i * 0.09, duration: 0.35, type: "spring", stiffness: 300 }}
+          >
+            <div className={`rounded-full border-2 border-background bg-foreground ${
+              i === MILESTONES.length - 1 ? "w-3 h-3 ring-2 ring-foreground/20" : "w-2.5 h-2.5"
+            }`} />
+          </motion.div>
+        ))}
+
+        {/* Ghost dots */}
+        {Array.from({ length: GHOST_COUNT }).map((_, i) => (
+          <motion.div
+            key={`ghost-${i}`}
+            className="flex justify-center relative z-10"
+            style={{ width: `${100 / totalCols}%` }}
+            initial={{ opacity: 0 }}
+            animate={isInView ? { opacity: 0.18 - i * 0.05 } : {}}
+            transition={{ delay: 0.6 + i * 0.1, duration: 0.4 }}
+          >
+            <div className="w-2 h-2 rounded-full bg-muted-foreground" />
+          </motion.div>
+        ))}
+
+        {/* Right gradient fade */}
+        <div
+          className="absolute right-0 top-0 bottom-0 pointer-events-none z-20"
+          style={{ width: `${(GHOST_COUNT / totalCols) * 100 + 4}%`, background: "linear-gradient(to right, transparent, var(--background) 80%)" }}
+        />
+      </div>
+
+      {/* Date row */}
+      <div className="flex mt-2">
+        {MILESTONES.map((m, i) => (
+          <motion.div
+            key={m.date}
+            className="text-center px-0.5"
+            style={{ width: `${100 / totalCols}%` }}
+            initial={{ opacity: 0, y: 6 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.05 + i * 0.07, duration: 0.4, ease: "easeOut" }}
+          >
+            <p className="text-[11px] text-muted-foreground font-medium">{m.date}</p>
+            <p className="text-[10px] text-muted-foreground/50">{m.quarter}</p>
+          </motion.div>
+        ))}
+        {Array.from({ length: GHOST_COUNT }).map((_, i) => (
+          <div key={i} style={{ width: `${100 / totalCols}%` }} />
+        ))}
+      </div>
+    </div>
   )
 }
 
@@ -366,45 +634,97 @@ function TimelineSection() {
       phase: "Phase 1",
       title: "Exploration",
       items: ["Ambiguous problem space", "Early prototypes", "Prompt-driven approach"],
+      img: phase1Img,
+      slides: [
+        { src: phase1Img, alt: "Phase 1 — Exploration overview" },
+        { placeholder: "Early exploration — prompt-only builder" },
+        { placeholder: "Phase 1 — First prototype iteration" },
+      ] as Slide[],
     },
     {
       phase: "Phase 2",
       title: "Definition",
       items: ["Structured builder introduced", "Integrated into Studio IDE", "Improved control vs abstraction"],
+      img: phase2Img,
+      slides: [
+        { src: phase2Img, alt: "Phase 2 — Definition overview" },
+        { placeholder: "Phase 2 — Agent canvas in Studio IDE" },
+        { placeholder: "Phase 2 — Trace view introduction" },
+      ] as Slide[],
     },
     {
       phase: "Phase 3",
       title: "Scaling",
       items: ["Agents embedded into workflows", "Evaluation + debugging expanded", "System prepared for production"],
+      img: phase3Img,
+      slides: [
+        { src: phase3Img, alt: "Phase 3 — Scaling overview" },
+        { placeholder: "Phase 3 — Multi-agent composition" },
+        { placeholder: "Phase 3 — Workflow integration" },
+        { placeholder: "Phase 3 — Evaluation dashboard" },
+      ] as Slide[],
     },
   ]
 
+  const [lightbox, setLightbox] = useState<{ slides: Slide[]; title: string } | null>(null)
+
   return (
-    <section className="py-20 space-y-12">
+    <section className="py-20 space-y-16">
       <FadeIn>
         <SectionLabel>Timeline</SectionLabel>
       </FadeIn>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-0 border border-border rounded-xl overflow-hidden">
-        {phases.map(({ phase, title, items }, i) => (
-          <SlideIn key={phase} delay={i * 0.1}>
-            <div className={`p-8 space-y-4 ${i < phases.length - 1 ? "border-b sm:border-b-0 sm:border-r border-border" : ""}`}>
-              <Badge variant="secondary">{phase}</Badge>
-              <h3 className="font-semibold text-lg">{title}</h3>
-              <ul className="space-y-2">
+
+      {/* Release timeline — first */}
+      <FadeIn className="space-y-5">
+        <SectionLabel>Releases</SectionLabel>
+        <ReleaseTimeline />
+      </FadeIn>
+
+      {/* Design phase screenshots — second */}
+      <div className="space-y-5">
+        <FadeIn><SectionLabel>Design phases</SectionLabel></FadeIn>
+        <div className="grid grid-cols-3 gap-4">
+          {phases.map(({ phase, title, items, img, slides }, i) => (
+            <SlideIn key={phase} delay={i * 0.1} className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Badge variant="secondary">{phase}</Badge>
+                <span className="text-sm text-muted-foreground">{title}</span>
+              </div>
+              <button
+                className="block w-full cursor-zoom-in rounded-xl overflow-hidden border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                onClick={() => setLightbox({ slides, title: `${phase} — ${title}` })}
+                aria-label={`Preview ${phase} — ${title}`}
+              >
+                <div className="aspect-video w-full overflow-hidden">
+                  <img
+                    src={img}
+                    alt={`${phase} — ${title}`}
+                    className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-300"
+                  />
+                </div>
+              </button>
+              <ul className="space-y-1.5 pt-1">
                 {items.map((item) => (
-                  <li key={item} className="text-sm text-muted-foreground flex items-start gap-2">
-                    <span className="mt-1.5 w-1 h-1 rounded-full bg-muted-foreground shrink-0" />
+                  <li key={item} className="text-xs text-muted-foreground flex items-start gap-2">
+                    <span className="mt-1.5 w-1 h-1 rounded-full bg-muted-foreground/60 shrink-0" />
                     {item}
                   </li>
                 ))}
               </ul>
-            </div>
-          </SlideIn>
-        ))}
+            </SlideIn>
+          ))}
+        </div>
       </div>
-      <FadeIn delay={0.2}>
-        <MediaPlaceholder label="Timeline / evolution diagram" aspect="wide" />
-      </FadeIn>
+
+      <AnimatePresence>
+        {lightbox && (
+          <CarouselLightbox
+            slides={lightbox.slides}
+            title={lightbox.title}
+            onClose={() => setLightbox(null)}
+          />
+        )}
+      </AnimatePresence>
     </section>
   )
 }
@@ -655,13 +975,13 @@ function ImpactSection() {
         </FadeIn>
         <div className="grid grid-cols-2 gap-4">
           <StatCard
-            value="~2,400"
-            label="Active builders"
-            description="Users who created at least one agent"
+            value="800+"
+            label="Daily active builders"
+            description="Builders interacting with the agent tooling daily"
             delay={0}
           />
           <StatCard
-            value="~8,500"
+            value="100k+"
             label="Agents created"
             description="Across all enterprise accounts"
             delay={0.08}
@@ -682,7 +1002,7 @@ function ImpactSection() {
             delay={0}
           />
           <StatCard
-            value="~1,100"
+            value="~5k"
             label="Agents in production"
             description="Running in live business workflows"
             delay={0.08}
@@ -699,7 +1019,7 @@ function ImpactSection() {
           <FadeIn>
             <Card>
               <CardContent className="pt-6 pb-7 space-y-3">
-                <p className="text-4xl font-bold tracking-tight">~$12M</p>
+                <p className="text-4xl font-bold tracking-tight">$30M+</p>
                 <div className="space-y-0.5">
                   <p className="text-sm font-medium">Incremental ARR</p>
                   <p className="text-xs text-muted-foreground">Growing enterprise pipeline driven by real-world agent use cases</p>
@@ -710,10 +1030,14 @@ function ImpactSection() {
           <FadeIn delay={0.08}>
             <Card className="h-full">
               <CardContent className="pt-6 pb-7 space-y-3">
-                <p className="text-4xl font-bold tracking-tight">3×</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-4xl font-bold tracking-tight">10+</p>
+                  <p className="text-4xl font-bold tracking-tight">→</p>
+                  <p className="text-4xl font-bold tracking-tight">&lt;1.3</p>
+                </div>
                 <div className="space-y-0.5">
-                  <p className="text-sm font-medium">Production conversion</p>
-                  <p className="text-xs text-muted-foreground">Increase in agents moving from experimentation to production after evaluation tooling shipped</p>
+                  <p className="text-sm font-medium">Days to deployment</p>
+                  <p className="text-xs text-muted-foreground">Reduction in average time from agent creation to deployment.</p>
                 </div>
               </CardContent>
             </Card>
@@ -774,7 +1098,7 @@ function ClosingSection() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
-export default function ProjectOne() {
+export default function CaseStudy() {
   return (
     <PageTransition>
       <CaseStudyNav />

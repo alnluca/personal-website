@@ -4,7 +4,7 @@ import { site } from "@/content/site"
 import Layout from "@/components/Layout"
 import Intro from "@/views/Intro"
 import Home from "@/views/Home"
-import ProjectOne from "@/views/projects/ProjectOne"
+import CaseStudy from "@/views/projects/CaseStudy"
 import ProjectTwo from "@/views/projects/ProjectTwo"
 
 function AnimatedRoutes() {
@@ -21,7 +21,7 @@ function AnimatedRoutes() {
         />
         <Route element={<Layout />}>
           <Route path="/home" element={<Home />} />
-          <Route path="/projects/project-one" element={<ProjectOne />} />
+          <Route path="/projects/case-study" element={<CaseStudy />} />
           <Route path="/projects/project-two" element={<ProjectTwo />} />
         </Route>
       </Routes>

@@ -18,12 +18,12 @@ export const site = {
   // --- Navigation ---
   nav: [
     { label: "About", href: "/home" },
-    { label: "Work", href: "/projects/project-one" },
+    { label: "Work", href: "/projects/case-study" },
   ],
 
   // --- Projects ---
   projects: [
-    { slug: "project-one", title: "Project One" },
+    { slug: "case-study", title: "AI Agent Builder" },
     { slug: "project-two", title: "Project Two" },
   ],
 }
