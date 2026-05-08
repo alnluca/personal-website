@@ -4,10 +4,26 @@ import PageTransition from "@/components/PageTransition"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
-import phase1Img from "@/assets/media/phase1.png"
-import phase2Img from "@/assets/media/phase2.png"
-import phase3Img from "@/assets/media/phase3.png"
 import heroImg from "@/assets/media/hero.png"
+import phase1_1 from "@/assets/media/phase1-1-designer.png"
+import phase1_2 from "@/assets/media/phase1-2-datasets.png"
+import phase1_3 from "@/assets/media/phase1-3-evaluation-evals.png"
+import phase1_4 from "@/assets/media/phase1-4-evaluation-runs.png"
+import phase1_5 from "@/assets/media/phase1-5-traces.png"
+import phase1_6 from "@/assets/media/phase1-6-trace-details.png"
+import phase2_1 from "@/assets/media/phase2-1-canvas.png"
+import phase2_2 from "@/assets/media/phase2-2-designer.png"
+import phase2_3 from "@/assets/media/phase2-3-evaluation-datasets.png"
+import phase2_4 from "@/assets/media/phase2-4-evaluation-runs.png"
+import phase2_5 from "@/assets/media/phase2-5-evaluation-canvas.png"
+import phase2_6 from "@/assets/media/phase2-6-trace.png"
+import phase3_1 from "@/assets/media/phase3-1-canvas.png"
+import phase3_2 from "@/assets/media/phase3-2-designer.png"
+import phase3_3 from "@/assets/media/phase3-3-trace.png"
+import earlyFormImg from "@/assets/media/early-form-based-agent-builder.png"
+import structuredCanvasImg from "@/assets/media/structured-agent-canvas.png"
+import heroPhase1Img from "@/assets/media/hero-phase1.png"
+import compositionImg from "@/assets/media/composition.png"
 
 // ─── Motion helpers ───────────────────────────────────────────────────────────
 
@@ -115,8 +131,8 @@ function CarouselLightbox({
           <span className="text-xs text-muted-foreground tabular-nums">{current + 1} / {slides.length}</span>
         </div>
 
-        {/* Slide area — fixed height so layout never shifts between slides */}
-        <div className="relative rounded-xl border border-border bg-muted/20 overflow-hidden" style={{ height: "72vh" }}>
+        {/* Slide area — 16:9 aspect ratio matching 1920×1080 source images */}
+        <div className="relative rounded-xl border border-border bg-muted/20 overflow-hidden aspect-video">
           <AnimatePresence mode="wait">
             <motion.div
               key={current}
@@ -210,17 +226,20 @@ function CarouselLightbox({
 function MediaPlaceholder({ label, aspect = "video" }: { label: string; aspect?: "video" | "wide" | "square" }) {
   const aspectClass = aspect === "wide" ? "aspect-[21/9]" : aspect === "square" ? "aspect-square" : "aspect-video"
   return (
-    <div
-      className={`${aspectClass} w-full rounded-xl border border-dashed border-border bg-muted/40 flex flex-col items-center justify-center gap-2 text-muted-foreground select-none`}
-    >
-      <div className="w-8 h-8 rounded-md border border-dashed border-muted-foreground/40 flex items-center justify-center">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="opacity-40">
-          <rect x="1" y="3" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
-          <path d="M5 9l2-2 2 2 2-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx="4.5" cy="6.5" r="0.75" fill="currentColor" />
-        </svg>
+    <div className="space-y-2">
+      <div
+        className={`${aspectClass} w-full rounded-xl border border-dashed border-border bg-muted/40 flex flex-col items-center justify-center gap-2 text-muted-foreground select-none`}
+      >
+        <div className="w-8 h-8 rounded-md border border-dashed border-muted-foreground/40 flex items-center justify-center">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="opacity-40">
+            <rect x="1" y="3" width="14" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.2" />
+            <path d="M5 9l2-2 2 2 2-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="4.5" cy="6.5" r="0.75" fill="currentColor" />
+          </svg>
+        </div>
+        <span className="text-xs font-medium text-center px-4 leading-snug max-w-xs">{label}</span>
       </div>
-      <span className="text-xs font-medium text-center px-4 leading-snug max-w-xs">{label}</span>
+      <p className="text-xs text-muted-foreground/50 text-center leading-snug">{label}</p>
     </div>
   )
 }
@@ -563,7 +582,7 @@ function ReleaseTimeline() {
     <div ref={ref} className="relative select-none">
 
       {/* Label row */}
-      <div className="flex mb-3">
+      <div className="flex mb-4">
         {MILESTONES.map((m, i) => (
           <motion.div
             key={m.date}
@@ -574,7 +593,7 @@ function ReleaseTimeline() {
             transition={{ delay: 0.05 + i * 0.07, duration: 0.4, ease: "easeOut" }}
           >
             {m.label.split("\n").map((line, j) => (
-              <p key={j} className={`text-[11px] font-medium leading-snug ${j > 0 ? "text-muted-foreground" : ""}`}>
+              <p key={j} className={`text-sm font-medium leading-snug ${j > 0 ? "text-muted-foreground" : ""}`}>
                 {line}
               </p>
             ))}
@@ -586,7 +605,7 @@ function ReleaseTimeline() {
       </div>
 
       {/* Dot + line row */}
-      <div className="relative flex items-center py-2">
+      <div className="relative flex items-center py-3">
         {/* Line */}
         <div className="absolute inset-y-1/2 left-0 right-0 h-px bg-border -translate-y-px" />
 
@@ -601,7 +620,7 @@ function ReleaseTimeline() {
             transition={{ delay: 0.15 + i * 0.09, duration: 0.35, type: "spring", stiffness: 300 }}
           >
             <div className={`rounded-full border-2 border-background bg-foreground ${
-              i === MILESTONES.length - 1 ? "w-3 h-3 ring-2 ring-foreground/20" : "w-2.5 h-2.5"
+              i === MILESTONES.length - 1 ? "w-4 h-4 ring-2 ring-foreground/20" : "w-3.5 h-3.5"
             }`} />
           </motion.div>
         ))}
@@ -616,7 +635,7 @@ function ReleaseTimeline() {
             animate={isInView ? { opacity: 0.18 - i * 0.05 } : {}}
             transition={{ delay: 0.6 + i * 0.1, duration: 0.4 }}
           >
-            <div className="w-2 h-2 rounded-full bg-muted-foreground" />
+            <div className="w-3 h-3 rounded-full bg-muted-foreground" />
           </motion.div>
         ))}
 
@@ -628,7 +647,7 @@ function ReleaseTimeline() {
       </div>
 
       {/* Date row */}
-      <div className="flex mt-2">
+      <div className="flex mt-3">
         {MILESTONES.map((m, i) => (
           <motion.div
             key={m.date}
@@ -638,8 +657,8 @@ function ReleaseTimeline() {
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ delay: 0.05 + i * 0.07, duration: 0.4, ease: "easeOut" }}
           >
-            <p className="text-[11px] text-muted-foreground font-medium">{m.date}</p>
-            <p className="text-[10px] text-muted-foreground/50">{m.quarter}</p>
+            <p className="text-xs text-muted-foreground font-medium">{m.date}</p>
+            <p className="text-[11px] text-muted-foreground/50">{m.quarter}</p>
           </motion.div>
         ))}
         {Array.from({ length: GHOST_COUNT }).map((_, i) => (
@@ -654,36 +673,44 @@ function TimelineSection() {
   const phases = [
     {
       phase: "Phase 1",
+      year: "2024",
       title: "Exploration",
-      items: ["Ambiguous problem space", "Early prototypes", "Prompt-driven approach"],
-      img: phase1Img,
+      items: ["Ambiguous problem space", "Early prototypes & PoC", "Simple prompt-driven approach"],
+      img: phase1_1,
       slides: [
-        { src: phase1Img, alt: "Phase 1 — Exploration overview" },
-        { placeholder: "Early exploration — prompt-only builder" },
-        { placeholder: "Phase 1 — First prototype iteration" },
+        { src: phase1_1, alt: "Phase 1 — Designer" },
+        { src: phase1_2, alt: "Phase 1 — Datasets" },
+        { src: phase1_3, alt: "Phase 1 — Evaluation: Evals" },
+        { src: phase1_4, alt: "Phase 1 — Evaluation: Runs" },
+        { src: phase1_5, alt: "Phase 1 — Traces" },
+        { src: phase1_6, alt: "Phase 1 — Trace details" },
       ] as Slide[],
     },
     {
       phase: "Phase 2",
+      year: "2025",
       title: "Definition",
       items: ["Structured builder introduced", "Integrated into Studio IDE", "Improved control vs abstraction"],
-      img: phase2Img,
+      img: phase2_1,
       slides: [
-        { src: phase2Img, alt: "Phase 2 — Definition overview" },
-        { placeholder: "Phase 2 — Agent canvas in Studio IDE" },
-        { placeholder: "Phase 2 — Trace view introduction" },
+        { src: phase2_1, alt: "Phase 2 — Canvas" },
+        { src: phase2_2, alt: "Phase 2 — Designer" },
+        { src: phase2_3, alt: "Phase 2 — Evaluation: Datasets" },
+        { src: phase2_4, alt: "Phase 2 — Evaluation: Runs" },
+        { src: phase2_5, alt: "Phase 2 — Evaluation: Canvas" },
+        { src: phase2_6, alt: "Phase 2 — Trace" },
       ] as Slide[],
     },
     {
       phase: "Phase 3",
+      year: "2026",
       title: "Scaling",
-      items: ["Agents embedded into workflows", "Evaluation + debugging expanded", "System prepared for production"],
-      img: phase3Img,
+      items: ["Agents embedded into workflows", "Expanded and curated capabilities", "System optimized for production"],
+      img: phase3_1,
       slides: [
-        { src: phase3Img, alt: "Phase 3 — Scaling overview" },
-        { placeholder: "Phase 3 — Multi-agent composition" },
-        { placeholder: "Phase 3 — Workflow integration" },
-        { placeholder: "Phase 3 — Evaluation dashboard" },
+        { src: phase3_1, alt: "Phase 3 — Canvas" },
+        { src: phase3_2, alt: "Phase 3 — Designer" },
+        { src: phase3_3, alt: "Phase 3 — Trace" },
       ] as Slide[],
     },
   ]
@@ -706,24 +733,23 @@ function TimelineSection() {
       <div className="space-y-5">
         <FadeIn><SectionLabel>Design phases</SectionLabel></FadeIn>
         <div className="grid grid-cols-3 gap-4">
-          {phases.map(({ phase, title, items, img, slides }, i) => (
+          {phases.map(({ phase, year, title, items, img, slides }, i) => (
             <SlideIn key={phase} delay={i * 0.1} className="space-y-3">
               <div className="flex items-center gap-2">
                 <Badge variant="secondary">{phase}</Badge>
                 <span className="text-sm text-muted-foreground">{title}</span>
+                <span className="ml-auto text-xs text-muted-foreground/50 tabular-nums">{year}</span>
               </div>
               <button
                 className="block w-full cursor-zoom-in rounded-xl overflow-hidden border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={() => setLightbox({ slides, title: `${phase} — ${title}` })}
                 aria-label={`Preview ${phase} — ${title}`}
               >
-                <div className="aspect-video w-full overflow-hidden">
-                  <img
-                    src={img}
-                    alt={`${phase} — ${title}`}
-                    className="w-full h-full object-cover hover:scale-[1.02] transition-transform duration-300"
-                  />
-                </div>
+                <img
+                  src={img}
+                  alt={`${phase} — ${title}`}
+                  className="w-full h-auto hover:scale-[1.02] transition-transform duration-300"
+                />
               </button>
               <ul className="space-y-1.5 pt-1">
                 {items.map((item) => (
@@ -752,24 +778,29 @@ function TimelineSection() {
 }
 
 function ProblemOneSection() {
+  const [lightbox, setLightbox] = useState<{ slides: Slide[]; title: string } | null>(null)
+
   const evolutionPhases = [
     {
       phase: "Phase 1",
       title: "Form-based",
       items: ["Prompt + tools + playground", "Isolated experience"],
-      media: "Form UI — early form-based agent builder (Figma)",
+      media: "Form UI — early form-based agent builder",
+      img: heroPhase1Img,
     },
     {
       phase: "Phase 2",
       title: "Structured Canvas",
       items: ["Agent node + components", "Improved prompting", "Trace introduced"],
       media: "Studio agent builder — structured canvas",
+      img: phase2_2,
     },
     {
       phase: "Phase 3",
       title: "Embedded Workflow",
       items: ["Agents inside workflows", "Context propagation", "Multi-agent composition"],
       media: "Workflow with embedded agent",
+      img: phase3_2,
     },
   ]
 
@@ -786,9 +817,8 @@ function ProblemOneSection() {
       </FadeIn>
 
       {/* Problem */}
-      <SplitSection
-        media="Early form-based agent builder (Figma)"
-        content={
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
+        <FadeIn>
           <div className="space-y-5">
             <SectionLabel>Problem</SectionLabel>
             <OutcomeList
@@ -799,8 +829,26 @@ function ProblemOneSection() {
               ]}
             />
           </div>
-        }
-      />
+        </FadeIn>
+        <FadeIn delay={0.1}>
+          <div className="space-y-2">
+            <button
+              className="block w-full cursor-zoom-in rounded-xl overflow-hidden border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              onClick={() => setLightbox({ slides: [{ src: earlyFormImg, alt: "Early form-based agent builder" }], title: "Early form-based agent builder" })}
+              aria-label="Preview — Early form-based agent builder"
+            >
+              <div className="aspect-video w-full overflow-hidden">
+                <img
+                  src={earlyFormImg}
+                  alt="Early form-based agent builder"
+                  className="w-full h-full object-cover object-top hover:scale-[1.02] transition-transform duration-300"
+                />
+              </div>
+            </button>
+            <p className="text-xs text-muted-foreground/50 text-center leading-snug">Early form-based agent builder</p>
+          </div>
+        </FadeIn>
+      </div>
 
       {/* Decision */}
       <div className="space-y-4">
@@ -810,7 +858,22 @@ function ProblemOneSection() {
         <DecisionCallout from="Implicit behavior" to="Explicit behavior" />
         <DecisionCallout from="Prompt-driven" to="Structured system" />
         <FadeIn delay={0.1}>
-          <MediaPlaceholder label="Structured agent canvas — decision point" />
+          <div className="space-y-2">
+            <button
+              className="block w-full cursor-zoom-in rounded-xl overflow-hidden border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              onClick={() => setLightbox({ slides: [{ src: structuredCanvasImg, alt: "Structured agent canvas" }], title: "Structured agent canvas" })}
+              aria-label="Preview — Structured agent canvas"
+            >
+              <div className="aspect-video w-full overflow-hidden">
+                <img
+                  src={structuredCanvasImg}
+                  alt="Structured agent canvas"
+                  className="w-full h-full object-cover object-top hover:scale-[1.02] transition-transform duration-300"
+                />
+              </div>
+            </button>
+            <p className="text-xs text-muted-foreground/50 text-center leading-snug">Structured agent canvas</p>
+          </div>
         </FadeIn>
       </div>
 
@@ -819,7 +882,7 @@ function ProblemOneSection() {
         <FadeIn>
           <SectionLabel>Evolution</SectionLabel>
         </FadeIn>
-        {evolutionPhases.map(({ phase, title, items, media }, i) => (
+        {evolutionPhases.map(({ phase, title, items, media, img }, i) => (
           <div key={phase} className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
             <SlideIn delay={0.05} className="space-y-4">
               <Badge variant="secondary">{phase}</Badge>
@@ -827,7 +890,22 @@ function ProblemOneSection() {
               <OutcomeList items={items} />
             </SlideIn>
             <FadeIn delay={0.1 + i * 0.05}>
-              <MediaPlaceholder label={media} />
+              {img ? (
+                <div className="space-y-2">
+                  <button
+                    className="block w-full cursor-zoom-in rounded-xl overflow-hidden border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    onClick={() => setLightbox({ slides: [{ src: img, alt: media }], title: media })}
+                    aria-label={`Preview — ${media}`}
+                  >
+                    <div className="aspect-video w-full overflow-hidden">
+                      <img src={img} alt={media} className="w-full h-full object-cover object-top hover:scale-[1.02] transition-transform duration-300" />
+                    </div>
+                  </button>
+                  <p className="text-xs text-muted-foreground/50 text-center leading-snug">{media}</p>
+                </div>
+              ) : (
+                <MediaPlaceholder label={media} />
+              )}
             </FadeIn>
           </div>
         ))}
@@ -842,33 +920,56 @@ function ProblemOneSection() {
           Smaller, task-specific agents outperform large, generic ones.
         </InsightCallout>
         <FadeIn delay={0.1}>
-          <MediaPlaceholder label="Composition vs monolith diagram" />
+          <div className="space-y-2">
+            <button
+              className="block w-full cursor-zoom-in rounded-xl overflow-hidden border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              onClick={() => setLightbox({ slides: [{ src: compositionImg, alt: "Composition" }], title: "Composition" })}
+              aria-label="Preview — Composition"
+            >
+              <div className="aspect-video w-full overflow-hidden">
+                <img
+                  src={compositionImg}
+                  alt="Composition"
+                  className="w-full h-full object-cover object-top hover:scale-[1.02] transition-transform duration-300"
+                />
+              </div>
+            </button>
+            <p className="text-xs text-muted-foreground/50 text-center leading-snug">Composition</p>
+          </div>
         </FadeIn>
       </div>
 
       {/* Outcome */}
-      <SplitSection
-        flip
-        media="Final system / combined view"
-        content={
-          <div className="space-y-5">
-            <SectionLabel>Outcome</SectionLabel>
-            <OutcomeList
-              items={[
-                "Improved reliability in production",
-                "Clearer mental model for builders",
-                "Easier debugging and iteration",
-                "Production-ready agent usage",
-              ]}
-            />
-          </div>
-        }
-      />
+      <FadeIn>
+        <div className="space-y-5">
+          <SectionLabel>Outcome</SectionLabel>
+          <OutcomeList
+            items={[
+              "Improved reliability in production",
+              "Clearer mental model for builders",
+              "Easier debugging and iteration",
+              "Production-ready agent usage",
+            ]}
+          />
+        </div>
+      </FadeIn>
+
+      <AnimatePresence>
+        {lightbox && (
+          <CarouselLightbox
+            slides={lightbox.slides}
+            title={lightbox.title}
+            onClose={() => setLightbox(null)}
+          />
+        )}
+      </AnimatePresence>
     </section>
   )
 }
 
 function ProblemTwoSection() {
+  const [lightbox, setLightbox] = useState<{ slides: Slide[]; title: string } | null>(null)
+
   const pillars = [
     {
       number: "01",
@@ -903,9 +1004,8 @@ function ProblemTwoSection() {
       </FadeIn>
 
       {/* Problem */}
-      <SplitSection
-        media="Unclear agent output / lack of evaluation signals"
-        content={
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start">
+        <FadeIn>
           <div className="space-y-5">
             <SectionLabel>Problem</SectionLabel>
             <OutcomeList
@@ -917,15 +1017,33 @@ function ProblemTwoSection() {
               ]}
             />
           </div>
-        }
-      />
+        </FadeIn>
+        <FadeIn delay={0.1}>
+          <div className="space-y-2">
+            <button
+              className="block w-full cursor-zoom-in rounded-xl overflow-hidden border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              onClick={() => setLightbox({ slides: [{ src: phase1_5, alt: "Simple aggregated outputs and lack of observability" }], title: "Simple aggregated outputs and lack of observability" })}
+              aria-label="Preview — Simple aggregated outputs and lack of observability"
+            >
+              <div className="aspect-video w-full overflow-hidden">
+                <img
+                  src={phase1_5}
+                  alt="Simple aggregated outputs and lack of observability"
+                  className="w-full h-full object-cover object-top hover:scale-[1.02] transition-transform duration-300"
+                />
+              </div>
+            </button>
+            <p className="text-xs text-muted-foreground/50 text-center leading-snug">Simple aggregated outputs and lack of observability</p>
+          </div>
+        </FadeIn>
+      </div>
 
       {/* Decision */}
       <div className="space-y-4">
         <FadeIn>
           <SectionLabel>Decision</SectionLabel>
         </FadeIn>
-        <DecisionCallout from="Trial & Error" to="Structured Evaluation & Feedback" />
+        <DecisionCallout from="Trial & Error" to="Structured evaluation, feedback and monitoring" />
         <FadeIn delay={0.1}>
           <MediaPlaceholder label="Evaluation system overview" />
         </FadeIn>
@@ -981,6 +1099,16 @@ function ProblemTwoSection() {
           </div>
         }
       />
+
+      <AnimatePresence>
+        {lightbox && (
+          <CarouselLightbox
+            slides={lightbox.slides}
+            title={lightbox.title}
+            onClose={() => setLightbox(null)}
+          />
+        )}
+      </AnimatePresence>
     </section>
   )
 }
@@ -997,9 +1125,9 @@ function ImpactSection() {
         </FadeIn>
         <div className="grid grid-cols-2 gap-4">
           <StatCard
-            value="800+"
-            label="Daily active builders"
-            description="Builders interacting with the agent tooling daily"
+            value="5.9K"
+            label="Monthly active builders"
+            description="Users actively building and iterating on agents"
             delay={0}
           />
           <StatCard
@@ -1018,16 +1146,16 @@ function ImpactSection() {
         </FadeIn>
         <div className="grid grid-cols-2 gap-4">
           <StatCard
-            value="~3,200"
-            label="Agents evaluated"
-            description="Using structured evaluation runs"
-            delay={0}
-          />
-          <StatCard
-            value="~5k"
-            label="Agents in production"
+            value="15%"
+            label="Moved to production"
             description="Running in live business workflows"
             delay={0.08}
+          />
+          <StatCard
+            value="710"
+            label="Active accounts"
+            description="Organizations actively using agents in live workflows"
+            delay={0}
           />
         </div>
       </div>
@@ -1044,7 +1172,7 @@ function ImpactSection() {
                 <p className="text-4xl font-bold tracking-tight">$30M+</p>
                 <div className="space-y-0.5">
                   <p className="text-sm font-medium">Incremental ARR</p>
-                  <p className="text-xs text-muted-foreground">Growing enterprise pipeline driven by real-world agent use cases</p>
+                  <p className="text-xs text-muted-foreground">Reached and exceeded initial quarterly targets</p>
                 </div>
               </CardContent>
             </Card>
@@ -1053,13 +1181,11 @@ function ImpactSection() {
             <Card className="h-full">
               <CardContent className="pt-6 pb-7 space-y-3">
                 <div className="flex items-baseline gap-2">
-                  <p className="text-4xl font-bold tracking-tight">10+</p>
-                  <p className="text-4xl font-bold tracking-tight">→</p>
-                  <p className="text-4xl font-bold tracking-tight">&lt;1.3</p>
+                  <p className="text-4xl font-bold tracking-tight">&lt;1.3 days</p>
                 </div>
                 <div className="space-y-0.5">
-                  <p className="text-sm font-medium">Days to deployment</p>
-                  <p className="text-xs text-muted-foreground">Reduction in average time from agent creation to deployment.</p>
+                  <p className="text-sm font-medium">Time to production</p>
+                  <p className="text-xs text-muted-foreground">Reduced average deployment time from 10+ days</p>
                 </div>
               </CardContent>
             </Card>
