@@ -1,5 +1,5 @@
 import { motion, useInView, AnimatePresence } from "framer-motion"
-import { useRef, useState, useEffect, Fragment, useMemo } from "react"
+import { useRef, useState, useEffect, useMemo } from "react"
 import PageTransition from "@/components/PageTransition"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
