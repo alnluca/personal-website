@@ -272,26 +272,6 @@ function SectionHeader({ label, title }: { label?: string; title: string }) {
   )
 }
 
-function SplitSection({
-  content,
-  media,
-  flip = false,
-  mediaAspect = "video",
-}: {
-  content: React.ReactNode
-  media: string
-  flip?: boolean
-  mediaAspect?: "video" | "wide" | "square"
-}) {
-  return (
-    <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start ${flip ? "lg:[&>*:first-child]:order-2" : ""}`}>
-      <FadeIn>{content}</FadeIn>
-      <FadeIn delay={0.1}>
-        <MediaPlaceholder label={media} aspect={mediaAspect} />
-      </FadeIn>
-    </div>
-  )
-}
 
 function InsightCallout({ children }: { children: React.ReactNode }) {
   const ref = useRef(null)
