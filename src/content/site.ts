@@ -5,7 +5,7 @@ export const site = {
   // Set enabled: false to skip the intro and land directly on the hero
   intro: {
     enabled: true,
-    greeting: "Hi Cresta team",
+    greeting: "👋 Hi, Cresta team!",
   },
 
   // --- Hero ---

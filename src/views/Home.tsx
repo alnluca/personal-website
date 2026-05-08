@@ -12,13 +12,12 @@ export default function Home() {
       <main className="flex min-h-screen flex-col items-center justify-center px-6">
         <div className="flex flex-col items-center gap-3 text-center">
           <motion.h1
-            className="font-bold tracking-tight text-foreground"
-            style={{ fontSize: "clamp(100px, 18vw, 240px)", lineHeight: 1 }}
+            className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
           >
-            {site.hero.name}
+            I'm {site.hero.name}
           </motion.h1>
 
           <motion.p

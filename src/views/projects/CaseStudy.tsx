@@ -486,7 +486,7 @@ function Hero() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
           >
-            AI Agent Builder
+            Agent Builder
           </motion.h1>
           <motion.p
             className="text-lg sm:text-xl text-muted-foreground max-w-2xl leading-relaxed"
