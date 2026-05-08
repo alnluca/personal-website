@@ -1382,7 +1382,7 @@ function ClosingSection() {
   return (
     <section className="py-20 space-y-12">
       <Separator />
-      <FadeIn className="space-y-8">
+      <FadeIn>
         <div className="space-y-6">
           <SectionLabel>Final Principles</SectionLabel>
           <p className="text-base text-muted-foreground max-w-2xl leading-relaxed">
@@ -1394,8 +1394,39 @@ function ClosingSection() {
             <p className="text-muted-foreground">Outcomes over artifacts.</p>
           </blockquote>
         </div>
-        <MediaPlaceholder label="Minimal closing screen" aspect="wide" />
       </FadeIn>
+    </section>
+  )
+}
+
+function QuestionsSection() {
+  return (
+    <section className="relative mt-20 mb-20 overflow-hidden rounded-xl">
+      {/* Image — natural aspect ratio, not stretched */}
+      <img
+        src={heroImg}
+        alt=""
+        aria-hidden
+        className="w-full h-auto block"
+        style={{ filter: "blur(4px)", opacity: 0.9 }}
+      />
+      {/* Soft veil for text legibility */}
+      <div className="absolute inset-0 bg-background/55" />
+
+      {/* Text content — centered over image */}
+      <motion.div
+        className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+      >
+        <h2 className="text-4xl sm:text-6xl font-semibold tracking-tight">
+          Questions &amp; Discussion
+        </h2>
+        <p className="text-base text-muted-foreground max-w-md leading-relaxed">
+          Happy to go deeper into the system, process, or decisions behind the work.
+        </p>
+      </motion.div>
     </section>
   )
 }
@@ -1422,6 +1453,7 @@ export default function CaseStudy() {
         <div id="impact"><ImpactSection /></div>
         <div id="synthesis"><SynthesisSection /></div>
         <ClosingSection />
+        <QuestionsSection />
       </main>
     </PageTransition>
   )
