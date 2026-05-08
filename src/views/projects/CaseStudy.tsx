@@ -1,5 +1,5 @@
 import { motion, useInView, AnimatePresence } from "framer-motion"
-import { useRef, useState, useEffect } from "react"
+import { useRef, useState, useEffect, Fragment } from "react"
 import PageTransition from "@/components/PageTransition"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -24,6 +24,15 @@ import earlyFormImg from "@/assets/media/early-form-based-agent-builder.png"
 import structuredCanvasImg from "@/assets/media/structured-agent-canvas.png"
 import heroPhase1Img from "@/assets/media/hero-phase1.png"
 import compositionImg from "@/assets/media/composition.png"
+import oo1 from "@/assets/media/operational-observability-1.png"
+import oo2 from "@/assets/media/operational-observability-2.png"
+import oo3 from "@/assets/media/operational-observability-3.png"
+import oo4 from "@/assets/media/operational-observability-4.png"
+import oo5 from "@/assets/media/operational-observability-5.png"
+import oo6 from "@/assets/media/operational-observability-6.png"
+import oo7 from "@/assets/media/operational-observability-7.png"
+import oo8 from "@/assets/media/operational-observability-8.png"
+import oo9 from "@/assets/media/operational-observability-9.png"
 
 // ─── Motion helpers ───────────────────────────────────────────────────────────
 
@@ -967,27 +976,159 @@ function ProblemOneSection() {
   )
 }
 
+function FeedbackLoopDiagram() {
+  const nodes = ["Design", "Debug & Inspect", "Evaluate", "Deploy", "Monitor"]
+  const n = nodes.length
+  const centers = nodes.map((_, i) => ((i + 0.5) / n) * 100)
+
+  // viewBox is 0 0 100 100; svgH maps to pixel height of the bracket zone
+  const BT_DEPTH = 38   // build-time bracket floor
+  const PF_DEPTH = 78   // production feedback bracket floor
+  const svgH = 104
+
+  // Build-time: FROM Evaluate (2) → TO Design (0), full height back to node level (y=3)
+  const btFrom = centers[2]   // 50
+  const btTo   = centers[0]   // 10
+
+  // Production: FROM Monitor (4) → terminates at midpoint of build-time bracket, rises to BT_DEPTH
+  const pfFrom  = centers[4]              // 90
+  const pfTo    = (btFrom + btTo) / 2    // 30 — midpoint of build-time horizontal
+
+  const btLabelLeft = (btFrom + btTo) / 2    // 30
+  const pfLabelLeft = (pfFrom + pfTo) / 2    // 60
+
+  return (
+    <div className="rounded-xl border border-border bg-card/30 p-6 space-y-3 select-none">
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+        From trial &amp; error to structured improvement
+      </p>
+
+      {/* Node row with → forward-flow arrows */}
+      <div className="flex items-center">
+        {nodes.map((label, i) => (
+          <Fragment key={label}>
+            <div className="flex-1 min-w-0 rounded-lg border border-border bg-background/80 px-2 py-2.5 flex items-center justify-center">
+              <p className="text-[10px] font-semibold leading-tight text-center">{label}</p>
+            </div>
+            {i < nodes.length - 1 && (
+              <div className="flex-shrink-0 w-4 flex items-center justify-center">
+                <svg width="9" height="7" viewBox="0 0 9 7" fill="none" className="text-muted-foreground/30">
+                  <path d="M0 3.5h6.5M4.5 1.5l2 2-2 2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            )}
+          </Fragment>
+        ))}
+      </div>
+
+      {/* Bracket zone */}
+      <div className="relative" style={{ height: svgH }}>
+        <svg
+          className="absolute inset-0 w-full h-full"
+          viewBox="0 0 100 100"
+          preserveAspectRatio="none"
+        >
+          {/* Build-time loop (gray):
+              M Improve,top → down to BT_DEPTH → left to Design → up to top */}
+          <path
+            d={`M ${btFrom} 3 L ${btFrom} ${BT_DEPTH} L ${btTo} ${BT_DEPTH} L ${btTo} 3`}
+            fill="none"
+            stroke="oklch(0.5 0 0 / 0.45)"
+            strokeWidth="1.5"
+            strokeLinejoin="miter"
+            vectorEffect="non-scaling-stroke"
+          />
+          {/* Arrowhead: pointing up at Design */}
+          <path
+            d={`M ${btTo - 1.1} 6.5 L ${btTo} 3 L ${btTo + 1.1} 6.5`}
+            fill="none"
+            stroke="oklch(0.5 0 0 / 0.45)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+          />
+
+          {/* Production feedback (indigo):
+              M Monitor,top → down to PF_DEPTH → left to Evaluate → up to BT_DEPTH only */}
+          <path
+            d={`M ${pfFrom} 3 L ${pfFrom} ${PF_DEPTH} L ${pfTo} ${PF_DEPTH} L ${pfTo} ${BT_DEPTH}`}
+            fill="none"
+            stroke="oklch(0.55 0.15 264 / 0.6)"
+            strokeWidth="1.5"
+            strokeLinejoin="miter"
+            vectorEffect="non-scaling-stroke"
+          />
+          {/* Arrowhead: pointing up at midpoint of build-time bracket, terminating at BT_DEPTH */}
+          <path
+            d={`M ${pfTo - 1.1} ${BT_DEPTH + 1.5} L ${pfTo} ${BT_DEPTH} L ${pfTo + 1.1} ${BT_DEPTH + 1.5}`}
+            fill="none"
+            stroke="oklch(0.55 0.15 264 / 0.6)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        </svg>
+
+        {/* Labels — HTML so they don't distort under non-uniform SVG x/y scaling */}
+        <span
+          className="absolute text-[9px] font-medium leading-none whitespace-nowrap text-muted-foreground/60"
+          style={{ left: `${btLabelLeft}%`, top: (BT_DEPTH / 100) * svgH + 4, transform: "translateX(-50%)" }}
+        >
+          build-time loop
+        </span>
+        <span
+          className="absolute text-[9px] font-medium leading-none whitespace-nowrap"
+          style={{
+            left: `${pfLabelLeft}%`,
+            top: (PF_DEPTH / 100) * svgH + 4,
+            transform: "translateX(-50%)",
+            color: "oklch(0.55 0.15 264 / 0.85)",
+          }}
+        >
+          production feedback
+        </span>
+      </div>
+    </div>
+  )
+}
+
 function ProblemTwoSection() {
   const [lightbox, setLightbox] = useState<{ slides: Slide[]; title: string } | null>(null)
 
-  const pillars = [
+  const ooSlides = [oo1, oo2, oo3, oo4, oo5, oo6, oo7, oo8, oo9].map((src, i) => ({
+    src,
+    alt: `Operational Observability ${i + 1}`,
+  }))
+
+  const pillars: {
+    number: string
+    title: string
+    items: string[]
+    media: string
+    thumbnail?: string
+    slides?: { src: string; alt: string }[]
+  }[] = [
     {
       number: "01",
       title: "Evaluation System",
-      items: ["Datasets (real + synthetic)", "Structured evaluation runs", "Compare outputs vs expected"],
-      media: "Evaluation dataset + results view",
+      items: ["Real and synthetic datasets", "Structured evaluation runs", "Compare outputs against expected behavior"],
+      media: "Evaluation dataset + evaluation results view",
     },
     {
       number: "02",
-      title: "Analysis & Guidance",
-      items: ["Prompt / agent analysis", "Identify inconsistencies", "Suggest improvements"],
-      media: "Analyzer / warnings / suggestions",
+      title: "Analysis & Tracing",
+      items: ["Prompt and agent analysis", "Tool execution tracing", "Timeline for asynchronous behavior"],
+      media: "Prompt / agent analyzer with warnings or suggestions",
     },
     {
       number: "03",
-      title: "Observability",
-      items: ["Reasoning visibility", "Tool execution trace", "Timeline for async behavior"],
-      media: "Advanced trace with reasoning + timeline",
+      title: "Operational Observability",
+      items: ["Monitor agent behavior in production", "Detect anomalies and execution issues", "Establish operational feedback loops"],
+      media: "Production monitoring / instance management view",
+      thumbnail: oo1,
+      slides: ooSlides,
     },
   ]
 
@@ -1010,10 +1151,10 @@ function ProblemTwoSection() {
             <SectionLabel>Problem</SectionLabel>
             <OutcomeList
               items={[
-                "Non-deterministic behavior with no visibility",
-                "Difficult to diagnose failures in production",
+                "Non-deterministic behavior with limited visibility",
+                "Difficult to diagnose failures before and after deployment",
                 "Trial-and-error iteration cycles",
-                "Low confidence before shipping",
+                "Low confidence before shipping agents to production",
               ]}
             />
           </div>
@@ -1043,10 +1184,7 @@ function ProblemTwoSection() {
         <FadeIn>
           <SectionLabel>Decision</SectionLabel>
         </FadeIn>
-        <DecisionCallout from="Trial & Error" to="Structured evaluation, feedback and monitoring" />
-        <FadeIn delay={0.1}>
-          <MediaPlaceholder label="Evaluation system overview" />
-        </FadeIn>
+        <DecisionCallout from="Manual iteration" to="Structured evaluation, analysis, and operational visibility" />
       </div>
 
       {/* Pillars */}
@@ -1054,7 +1192,7 @@ function ProblemTwoSection() {
         <FadeIn>
           <SectionLabel>Three pillars</SectionLabel>
         </FadeIn>
-        {pillars.map(({ number, title, items, media }, i) => (
+        {pillars.map(({ number, title, items, media, thumbnail, slides }, i) => (
           <div key={number} className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-start ${i % 2 === 1 ? "lg:[&>*:first-child]:order-2" : ""}`}>
             <SlideIn delay={0.05} className="space-y-4">
               <span className="text-4xl font-bold text-muted-foreground/30">{number}</span>
@@ -1062,7 +1200,26 @@ function ProblemTwoSection() {
               <OutcomeList items={items} />
             </SlideIn>
             <FadeIn delay={0.1}>
-              <MediaPlaceholder label={media} />
+              {thumbnail && slides ? (
+                <div className="space-y-2">
+                  <button
+                    className="block w-full cursor-zoom-in rounded-xl overflow-hidden border border-border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    onClick={() => setLightbox({ slides, title })}
+                    aria-label={`Preview — ${title}`}
+                  >
+                    <div className="aspect-video w-full overflow-hidden">
+                      <img
+                        src={thumbnail}
+                        alt={title}
+                        className="w-full h-full object-cover object-top hover:scale-[1.02] transition-transform duration-300"
+                      />
+                    </div>
+                  </button>
+                  <p className="text-xs text-muted-foreground/50 text-center leading-snug">{media}</p>
+                </div>
+              ) : (
+                <MediaPlaceholder label={media} />
+              )}
             </FadeIn>
           </div>
         ))}
@@ -1074,31 +1231,27 @@ function ProblemTwoSection() {
           <SectionLabel>Insight</SectionLabel>
         </FadeIn>
         <InsightCallout>
-          Improving agent quality requires a tight feedback loop between execution, evaluation, and iteration.
+          Improving agent quality requires a tight feedback loop between execution, evaluation, analysis, and production behavior.
         </InsightCallout>
         <FadeIn delay={0.1}>
-          <MediaPlaceholder label="Feedback loop diagram" />
+          <FeedbackLoopDiagram />
         </FadeIn>
       </div>
 
       {/* Outcome */}
-      <SplitSection
-        flip
-        media="Improved results / evaluation improvement over time"
-        content={
-          <div className="space-y-5">
-            <SectionLabel>Outcome</SectionLabel>
-            <OutcomeList
-              items={[
-                "Faster iteration cycles for builders",
-                "Improved agent quality at scale",
-                "Increased confidence before production",
-                "Higher production readiness rate",
-              ]}
-            />
-          </div>
-        }
-      />
+      <FadeIn>
+        <div className="space-y-5">
+          <SectionLabel>Outcome</SectionLabel>
+          <OutcomeList
+            items={[
+              "Faster iteration",
+              "Better agent quality",
+              "Increased confidence before deployment",
+              "Stronger production readiness",
+            ]}
+          />
+        </div>
+      </FadeIn>
 
       <AnimatePresence>
         {lightbox && (
@@ -1207,20 +1360,20 @@ function SynthesisSection() {
   return (
     <section className="py-20 space-y-12">
       <SectionHeader label="Synthesis" title="The through-line" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <InsightCallout>
+        "The goal wasn't just to build agents, but to create the systems required to build and operate them reliably at scale."
+      </InsightCallout>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {shifts.map(({ from, to }, i) => (
           <SlideIn key={from} delay={i * 0.08}>
-            <div className="flex items-center gap-4 p-6 rounded-xl border border-border bg-card">
-              <span className="text-muted-foreground line-through">{from}</span>
-              <span className="text-muted-foreground">→</span>
+            <div className="flex items-center gap-3 p-5 rounded-xl border border-border bg-card">
+              <span className="text-muted-foreground">{from}</span>
+              <span className="text-muted-foreground/40 text-sm">→</span>
               <span className="font-semibold">{to}</span>
             </div>
           </SlideIn>
         ))}
       </div>
-      <FadeIn delay={0.2}>
-        <MediaPlaceholder label="Synthesis matrix" aspect="wide" />
-      </FadeIn>
     </section>
   )
 }
@@ -1230,11 +1383,14 @@ function ClosingSection() {
     <section className="py-20 space-y-12">
       <Separator />
       <FadeIn className="space-y-8">
-        <div className="space-y-4">
-          <SectionLabel>Final Principle</SectionLabel>
+        <div className="space-y-6">
+          <SectionLabel>Final Principles</SectionLabel>
+          <p className="text-base text-muted-foreground max-w-2xl leading-relaxed">
+            Building reliable agent systems required balancing flexibility, visibility, and operational trust across the entire workflow lifecycle.
+          </p>
           <blockquote className="space-y-1 text-2xl sm:text-3xl font-medium tracking-tight leading-snug">
-            <p>Clarity over complexity.</p>
-            <p className="text-muted-foreground">System thinking over features.</p>
+            <p>Clarity over ambiguity.</p>
+            <p className="text-muted-foreground">Systems over isolated features.</p>
             <p className="text-muted-foreground">Outcomes over artifacts.</p>
           </blockquote>
         </div>
