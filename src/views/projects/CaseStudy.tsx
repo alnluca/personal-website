@@ -1,5 +1,5 @@
 import { motion, useInView, AnimatePresence } from "framer-motion"
-import { useRef, useState, useEffect, Fragment } from "react"
+import { useRef, useState, useEffect, Fragment, useMemo } from "react"
 import PageTransition from "@/components/PageTransition"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
@@ -33,6 +33,15 @@ import oo6 from "@/assets/media/operational-observability-6.png"
 import oo7 from "@/assets/media/operational-observability-7.png"
 import oo8 from "@/assets/media/operational-observability-8.png"
 import oo9 from "@/assets/media/operational-observability-9.png"
+import eval1 from "@/assets/media/evaluation-1.png"
+import eval2 from "@/assets/media/evaluation-2.png"
+import eval3 from "@/assets/media/evaluation-3.png"
+import at1 from "@/assets/media/analysis-tracing-1.png"
+import at2 from "@/assets/media/analysis-tracing-2.png"
+import at3 from "@/assets/media/analysis-tracing-3.png"
+import at4 from "@/assets/media/analysis-tracing-4.png"
+import { ReactFlow, Handle, Position, type NodeProps, type EdgeProps } from '@xyflow/react'
+import '@xyflow/react/dist/style.css'
 
 // ─── Motion helpers ───────────────────────────────────────────────────────────
 
@@ -352,10 +361,11 @@ function StatCard({
 const NAV_SECTIONS = [
   { id: "context",   label: "Context" },
   { id: "timeline",  label: "Timeline" },
-  { id: "problem-1", label: "Defining Behavior" },
+  { id: "problem-1", label: "Defining Agent Behavior" },
   { id: "problem-2", label: "Evaluating & Improving" },
   { id: "impact",    label: "Impact" },
   { id: "synthesis", label: "Synthesis" },
+  { id: "closing",   label: "Final Principles" },
 ]
 
 function useSectionObserver(ids: string[]) {
@@ -708,9 +718,7 @@ function TimelineSection() {
 
   return (
     <section className="py-20 space-y-16">
-      <FadeIn>
-        <SectionLabel>Timeline</SectionLabel>
-      </FadeIn>
+      <SectionHeader label="Timeline" title="Design evolution & releases" />
 
       {/* Release timeline — first */}
       <FadeIn className="space-y-5">
@@ -774,14 +782,14 @@ function ProblemOneSection() {
       phase: "Phase 1",
       title: "Form-based",
       items: ["Prompt + tools + playground", "Isolated experience"],
-      media: "Form UI — early form-based agent builder",
+      media: "Early form-based agent builder",
       img: heroPhase1Img,
     },
     {
       phase: "Phase 2",
       title: "Structured Canvas",
       items: ["Agent node + components", "Improved prompting", "Trace introduced"],
-      media: "Studio agent builder — structured canvas",
+      media: "Structured agent canvas",
       img: phase2_2,
     },
     {
@@ -796,10 +804,7 @@ function ProblemOneSection() {
   return (
     <section className="py-20 space-y-20">
       <FadeIn>
-        <div className="flex items-center gap-4">
-          <div className="w-2 h-2 rounded-full bg-emerald-500" />
-          <SectionLabel>Problem 1</SectionLabel>
-        </div>
+        <SectionLabel>Problem 1</SectionLabel>
         <h2 className="mt-3 text-4xl sm:text-5xl font-semibold tracking-tight">
           Defining Agent Behavior
         </h2>
@@ -956,119 +961,134 @@ function ProblemOneSection() {
   )
 }
 
+// ─── Feedback loop diagram (React Flow) ──────────────────────────────────────
+
+const FL_NODE_W = 115
+const FL_NODE_H = 36
+const FL_STEP = 133   // FL_NODE_W + 18px gap
+const FL_BT_DEPTH = 60
+const FL_PF_DEPTH = 95
+
+function FeedbackFlowNode({ data }: NodeProps) {
+  return (
+    <div
+      style={{ width: FL_NODE_W, height: FL_NODE_H }}
+      className="rounded-lg border border-border bg-background/80 flex items-center justify-center"
+    >
+      <Handle type="source" id="right"    position={Position.Right}  style={{ opacity: 0, pointerEvents: 'none', width: 0, height: 0 }} />
+      <Handle type="target" id="left"     position={Position.Left}   style={{ opacity: 0, pointerEvents: 'none', width: 0, height: 0 }} />
+      <Handle type="source" id="bottom"   position={Position.Bottom} style={{ opacity: 0, pointerEvents: 'none', width: 0, height: 0 }} />
+      <Handle type="target" id="bottom-t" position={Position.Bottom} style={{ opacity: 0, pointerEvents: 'none', width: 0, height: 0 }} />
+      <p className="text-[10px] font-semibold leading-tight text-center px-1.5">{data.label as string}</p>
+    </div>
+  )
+}
+
+function FeedbackSpacerNode() {
+  return <div style={{ width: 2, height: 2 }} />
+}
+
+function FlForwardEdge({ sourceX, sourceY, targetX, targetY }: EdgeProps) {
+  const aw = 5
+  const ah = 3.5
+  return (
+    <g>
+      <line x1={sourceX} y1={sourceY} x2={targetX - aw} y2={targetY}
+        style={{ stroke: 'oklch(0.5 0 0 / 0.3)', strokeWidth: 1 }} />
+      <path
+        d={`M ${targetX - aw} ${targetY - ah} L ${targetX} ${targetY} L ${targetX - aw} ${targetY + ah}`}
+        style={{ stroke: 'oklch(0.5 0 0 / 0.3)', fill: 'none', strokeWidth: 1, strokeLinecap: 'round', strokeLinejoin: 'round' }}
+      />
+    </g>
+  )
+}
+
+function FlBuildTimeEdge({ sourceX, sourceY, targetX, targetY }: EdgeProps) {
+  const btY = sourceY + FL_BT_DEPTH
+  const path = `M ${sourceX} ${sourceY} L ${sourceX} ${btY} L ${targetX} ${btY} L ${targetX} ${targetY}`
+  const lx = (sourceX + targetX) / 2
+  return (
+    <g>
+      <path d={path} style={{ fill: 'none', stroke: 'oklch(0.5 0 0 / 0.45)', strokeWidth: 1.5, strokeLinejoin: 'miter' }} />
+      <path
+        d={`M ${targetX - 4} ${targetY + 5} L ${targetX} ${targetY} L ${targetX + 4} ${targetY + 5}`}
+        style={{ fill: 'none', stroke: 'oklch(0.5 0 0 / 0.45)', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round' }}
+      />
+      <text x={lx} y={btY + 13} textAnchor="middle"
+        style={{ fontSize: 8, fontWeight: 600, fill: 'oklch(0.5 0 0 / 0.55)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+        build-time loop
+      </text>
+    </g>
+  )
+}
+
+function FlProductionFeedbackEdge({ sourceX, sourceY, targetX }: EdgeProps) {
+  const pfY = sourceY + FL_PF_DEPTH
+  const terminateY = sourceY + FL_BT_DEPTH
+  const path = `M ${sourceX} ${sourceY} L ${sourceX} ${pfY} L ${targetX} ${pfY} L ${targetX} ${terminateY}`
+  const lx = (sourceX + targetX) / 2
+  return (
+    <g>
+      <path d={path} style={{ fill: 'none', stroke: 'oklch(0.55 0.15 264 / 0.6)', strokeWidth: 1.5, strokeLinejoin: 'miter' }} />
+      <path
+        d={`M ${targetX - 4} ${terminateY + 5} L ${targetX} ${terminateY} L ${targetX + 4} ${terminateY + 5}`}
+        style={{ fill: 'none', stroke: 'oklch(0.55 0.15 264 / 0.6)', strokeWidth: 1.5, strokeLinecap: 'round', strokeLinejoin: 'round' }}
+      />
+      <text x={lx} y={pfY + 13} textAnchor="middle"
+        style={{ fontSize: 8, fontWeight: 600, fill: 'oklch(0.55 0.15 264 / 0.85)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+        production feedback
+      </text>
+    </g>
+  )
+}
+
+const feedbackNodeTypes = { feedback: FeedbackFlowNode, spacer: FeedbackSpacerNode }
+const feedbackEdgeTypes = { forward: FlForwardEdge, buildtime: FlBuildTimeEdge, productionfeedback: FlProductionFeedbackEdge }
+
 function FeedbackLoopDiagram() {
-  const nodes = ["Design", "Debug & Inspect", "Evaluate", "Deploy", "Monitor"]
-  const n = nodes.length
-  const centers = nodes.map((_, i) => ((i + 0.5) / n) * 100)
+  const nodes = useMemo(() => [
+    { id: 'design',   type: 'feedback', data: { label: 'Design' },         position: { x: 0,         y: 0 } },
+    { id: 'debug',    type: 'feedback', data: { label: 'Debug & Inspect' }, position: { x: FL_STEP,   y: 0 } },
+    { id: 'evaluate', type: 'feedback', data: { label: 'Evaluate' },        position: { x: FL_STEP*2, y: 0 } },
+    { id: 'deploy',   type: 'feedback', data: { label: 'Deploy' },          position: { x: FL_STEP*3, y: 0 } },
+    { id: 'monitor',  type: 'feedback', data: { label: 'Monitor' },         position: { x: FL_STEP*4, y: 0 } },
+    { id: 'spacer',   type: 'spacer',   data: {},                           position: { x: FL_STEP*2, y: FL_NODE_H + FL_PF_DEPTH + 20 } },
+  ], [])
 
-  // viewBox is 0 0 100 100; svgH maps to pixel height of the bracket zone
-  const BT_DEPTH = 38   // build-time bracket floor
-  const PF_DEPTH = 78   // production feedback bracket floor
-  const svgH = 104
-
-  // Build-time: FROM Evaluate (2) → TO Design (0), full height back to node level (y=3)
-  const btFrom = centers[2]   // 50
-  const btTo   = centers[0]   // 10
-
-  // Production: FROM Monitor (4) → terminates at midpoint of build-time bracket, rises to BT_DEPTH
-  const pfFrom  = centers[4]              // 90
-  const pfTo    = (btFrom + btTo) / 2    // 30 — midpoint of build-time horizontal
-
-  const btLabelLeft = (btFrom + btTo) / 2    // 30
-  const pfLabelLeft = (pfFrom + pfTo) / 2    // 60
+  const edges = useMemo(() => [
+    { id: 'f1', type: 'forward',            source: 'design',   target: 'debug',    sourceHandle: 'right',  targetHandle: 'left'     },
+    { id: 'f2', type: 'forward',            source: 'debug',    target: 'evaluate', sourceHandle: 'right',  targetHandle: 'left'     },
+    { id: 'f3', type: 'forward',            source: 'evaluate', target: 'deploy',   sourceHandle: 'right',  targetHandle: 'left'     },
+    { id: 'f4', type: 'forward',            source: 'deploy',   target: 'monitor',  sourceHandle: 'right',  targetHandle: 'left'     },
+    { id: 'bt', type: 'buildtime',          source: 'evaluate', target: 'design',   sourceHandle: 'bottom', targetHandle: 'bottom-t' },
+    { id: 'pf', type: 'productionfeedback', source: 'monitor',  target: 'debug',    sourceHandle: 'bottom', targetHandle: 'bottom-t' },
+  ], [])
 
   return (
     <div className="rounded-xl border border-border bg-card/30 p-6 space-y-3 select-none">
       <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
         From trial &amp; error to structured improvement
       </p>
-
-      {/* Node row with → forward-flow arrows */}
-      <div className="flex items-center">
-        {nodes.map((label, i) => (
-          <Fragment key={label}>
-            <div className="flex-1 min-w-0 rounded-lg border border-border bg-background/80 px-2 py-2.5 flex items-center justify-center">
-              <p className="text-[10px] font-semibold leading-tight text-center">{label}</p>
-            </div>
-            {i < nodes.length - 1 && (
-              <div className="flex-shrink-0 w-4 flex items-center justify-center">
-                <svg width="9" height="7" viewBox="0 0 9 7" fill="none" className="text-muted-foreground/30">
-                  <path d="M0 3.5h6.5M4.5 1.5l2 2-2 2" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-            )}
-          </Fragment>
-        ))}
-      </div>
-
-      {/* Bracket zone */}
-      <div className="relative" style={{ height: svgH }}>
-        <svg
-          className="absolute inset-0 w-full h-full"
-          viewBox="0 0 100 100"
-          preserveAspectRatio="none"
-        >
-          {/* Build-time loop (gray):
-              M Improve,top → down to BT_DEPTH → left to Design → up to top */}
-          <path
-            d={`M ${btFrom} 3 L ${btFrom} ${BT_DEPTH} L ${btTo} ${BT_DEPTH} L ${btTo} 3`}
-            fill="none"
-            stroke="oklch(0.5 0 0 / 0.45)"
-            strokeWidth="1.5"
-            strokeLinejoin="miter"
-            vectorEffect="non-scaling-stroke"
-          />
-          {/* Arrowhead: pointing up at Design */}
-          <path
-            d={`M ${btTo - 1.1} 6.5 L ${btTo} 3 L ${btTo + 1.1} 6.5`}
-            fill="none"
-            stroke="oklch(0.5 0 0 / 0.45)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            vectorEffect="non-scaling-stroke"
-          />
-
-          {/* Production feedback (indigo):
-              M Monitor,top → down to PF_DEPTH → left to Evaluate → up to BT_DEPTH only */}
-          <path
-            d={`M ${pfFrom} 3 L ${pfFrom} ${PF_DEPTH} L ${pfTo} ${PF_DEPTH} L ${pfTo} ${BT_DEPTH}`}
-            fill="none"
-            stroke="oklch(0.55 0.15 264 / 0.6)"
-            strokeWidth="1.5"
-            strokeLinejoin="miter"
-            vectorEffect="non-scaling-stroke"
-          />
-          {/* Arrowhead: pointing up at midpoint of build-time bracket, terminating at BT_DEPTH */}
-          <path
-            d={`M ${pfTo - 1.1} ${BT_DEPTH + 1.5} L ${pfTo} ${BT_DEPTH} L ${pfTo + 1.1} ${BT_DEPTH + 1.5}`}
-            fill="none"
-            stroke="oklch(0.55 0.15 264 / 0.6)"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            vectorEffect="non-scaling-stroke"
-          />
-        </svg>
-
-        {/* Labels — HTML so they don't distort under non-uniform SVG x/y scaling */}
-        <span
-          className="absolute text-[9px] font-medium leading-none whitespace-nowrap text-muted-foreground/60"
-          style={{ left: `${btLabelLeft}%`, top: (BT_DEPTH / 100) * svgH + 4, transform: "translateX(-50%)" }}
-        >
-          build-time loop
-        </span>
-        <span
-          className="absolute text-[9px] font-medium leading-none whitespace-nowrap"
-          style={{
-            left: `${pfLabelLeft}%`,
-            top: (PF_DEPTH / 100) * svgH + 4,
-            transform: "translateX(-50%)",
-            color: "oklch(0.55 0.15 264 / 0.85)",
-          }}
-        >
-          production feedback
-        </span>
+      <div style={{ height: 200 }}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          nodeTypes={feedbackNodeTypes}
+          edgeTypes={feedbackEdgeTypes}
+          fitView
+          fitViewOptions={{ padding: 0.05 }}
+          nodesDraggable={false}
+          nodesConnectable={false}
+          nodesFocusable={false}
+          edgesFocusable={false}
+          elementsSelectable={false}
+          panOnDrag={false}
+          zoomOnScroll={false}
+          zoomOnPinch={false}
+          zoomOnDoubleClick={false}
+          preventScrolling={false}
+          proOptions={{ hideAttribution: true }}
+        />
       </div>
     </div>
   )
@@ -1094,13 +1114,26 @@ function ProblemTwoSection() {
       number: "01",
       title: "Evaluation System",
       items: ["Real and synthetic datasets", "Structured evaluation runs", "Compare outputs against expected behavior"],
-      media: "Evaluation dataset + evaluation results view",
+      media: "Design time evaluations",
+      thumbnail: eval1,
+      slides: [
+        { src: eval1, alt: "Evaluation 1" },
+        { src: eval2, alt: "Evaluation 2" },
+        { src: eval3, alt: "Evaluation 3" },
+      ],
     },
     {
       number: "02",
       title: "Analysis & Tracing",
-      items: ["Prompt and agent analysis", "Tool execution tracing", "Timeline for asynchronous behavior"],
-      media: "Prompt / agent analyzer with warnings or suggestions",
+      items: ["Agent health analysis & linter", "Tool execution tracing", "Timeline for asynchronous behavior"],
+      media: "Agent health score",
+      thumbnail: at1,
+      slides: [
+        { src: at1, alt: "Analysis & Tracing 1" },
+        { src: at2, alt: "Analysis & Tracing 2" },
+        { src: at3, alt: "Analysis & Tracing 3" },
+        { src: at4, alt: "Analysis & Tracing 4" },
+      ],
     },
     {
       number: "03",
@@ -1115,10 +1148,7 @@ function ProblemTwoSection() {
   return (
     <section className="py-20 space-y-20">
       <FadeIn>
-        <div className="flex items-center gap-4">
-          <div className="w-2 h-2 rounded-full bg-orange-500" />
-          <SectionLabel>Problem 2</SectionLabel>
-        </div>
+        <SectionLabel>Problem 2</SectionLabel>
         <h2 className="mt-3 text-4xl sm:text-5xl font-semibold tracking-tight">
           Evaluating & Improving Agent Behavior
         </h2>
@@ -1282,13 +1312,13 @@ function ImpactSection() {
             value="15%"
             label="Moved to production"
             description="Running in live business workflows"
-            delay={0.08}
+            delay={0}
           />
           <StatCard
             value="710"
             label="Active accounts"
             description="Organizations actively using agents in live workflows"
-            delay={0}
+            delay={0.08}
           />
         </div>
       </div>
@@ -1370,8 +1400,8 @@ function ClosingSection() {
           </p>
           <blockquote className="space-y-1 text-2xl sm:text-3xl font-medium tracking-tight leading-snug">
             <p>Clarity over ambiguity.</p>
-            <p className="text-muted-foreground">Systems over isolated features.</p>
-            <p className="text-muted-foreground">Outcomes over artifacts.</p>
+            <p>Systems over isolated features.</p>
+            <p>Outcomes over artifacts.</p>
           </blockquote>
         </div>
       </FadeIn>
@@ -1394,19 +1424,14 @@ function QuestionsSection() {
       <div className="absolute inset-0 bg-background/55" />
 
       {/* Text content — centered over image */}
-      <motion.div
-        className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-6"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
-      >
+      <FadeIn className="absolute inset-0 flex flex-col items-center justify-center gap-4 text-center px-6">
         <h2 className="text-4xl sm:text-6xl font-semibold tracking-tight">
           Questions &amp; Discussion
         </h2>
         <p className="text-base text-muted-foreground max-w-md leading-relaxed">
           Happy to go deeper into the system, process, or decisions behind the work.
         </p>
-      </motion.div>
+      </FadeIn>
     </section>
   )
 }
@@ -1432,7 +1457,7 @@ export default function CaseStudy() {
         <Separator />
         <div id="impact"><ImpactSection /></div>
         <div id="synthesis"><SynthesisSection /></div>
-        <ClosingSection />
+        <div id="closing"><ClosingSection /></div>
         <QuestionsSection />
       </main>
     </PageTransition>

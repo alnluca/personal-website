@@ -23,7 +23,7 @@ export const site = {
 
   // --- Projects ---
   projects: [
-    { slug: "case-study", title: "AI Agent Builder" },
+    { slug: "case-study", title: "Agent Builder" },
     { slug: "project-two", title: "Project Two" },
   ],
 }
